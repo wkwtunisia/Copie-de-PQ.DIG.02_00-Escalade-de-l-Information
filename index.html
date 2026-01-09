@@ -3,45 +3,91 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>PQ.DIG.02_00 Escalade de l'Information - WKW Tunisie</title>
+    <title>PQ.DIG.02_00 - Escalade de l'Information | WKW Tunisie</title>
     <style>
-      body {
+      * {
         margin: 0;
         padding: 0;
-        font-family: Arial, sans-serif;
-        background-color: #f5f5f5;
+        box-sizing: border-box;
+      }
+      body {
+        font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+          sans-serif;
+        background: #f8f9fa;
         display: flex;
         flex-direction: column;
-        height: 100vh;
+        min-height: 100vh;
       }
       header {
-        background-color: #ffffff;
-        padding: 20px;
+        background: #fff;
+        padding: 1rem;
         text-align: center;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        position: sticky;
+        top: 0;
+        z-index: 100;
       }
       header img {
-        height: 80px;
+        max-height: 70px;
+        width: auto;
+        margin-bottom: 0.5rem;
+      }
+      h1 {
+        font-size: 1.4rem;
+        color: #333;
+        margin-bottom: 0.3rem;
+      }
+      h2 {
+        font-size: 1rem;
+        color: #555;
+        font-weight: normal;
       }
       main {
         flex: 1;
+        padding: 1rem;
         display: flex;
-        justify-content: center;
-        align-items: center;
-        padding: 20px;
+        flex-direction: column;
       }
-      iframe {
-        width: 100%;
-        height: 100%;
-        border: none;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+      #pdf-viewer {
+        flex: 1;
+        overflow: auto;
+        border-radius: 8px;
+        background: #fff;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+        padding: 0.5rem;
+      }
+      canvas {
+        display: block;
+        margin: 0 auto 1rem auto;
       }
       footer {
-        background-color: #333;
+        background: #2c3e50;
         color: white;
         text-align: center;
-        padding: 10px;
-        font-size: 14px;
+        padding: 0.8rem;
+        font-size: 0.85rem;
+      }
+      @media (max-width: 768px) {
+        header img {
+          max-height: 60px;
+        }
+        h1 {
+          font-size: 1.2rem;
+        }
+        h2 {
+          font-size: 0.9rem;
+        }
+        main {
+          padding: 0.6rem;
+        }
+      }
+      @media (max-width: 480px) {
+        h1 {
+          font-size: 1.1rem;
+        }
+        h2 {
+          font-size: 0.85rem;
+        }
       }
     </style>
   </head>
@@ -54,15 +100,47 @@
       <h1>WKW Tunisie S.A.R.L.</h1>
       <h2>PQ.DIG.02_00 - Escalade de l'Information</h2>
     </header>
+
     <main>
-      <iframe
-        src="https://raw.githubusercontent.com/wkwtunisia/Copie-de-PQ.DIG.02_00-Escalade-de-l-Information/main/Copie%20de%20PQ.DIG.02_00%20Escalade%20de%20l'Information.pdf"
-        title="PQ.DIG.02_00 Escalade de l'Information"
-      ></iframe>
+      <div id="pdf-viewer" aria-label="PDF Escalade de l'Information"></div>
     </main>
+
     <footer>
-      &copy; 2026 WKW Tunisie S.A.R.L. - Zone Industrielle Utique, 7060 Bizerte,
+      © 2026 WKW Tunisie S.A.R.L. - Zone Industrielle Utique, 7060 Bizerte,
       Tunisie
     </footer>
+
+    <!-- PDF.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.101/pdf.min.js"></script>
+    <script>
+      const pdfUrl =
+        "https://wkwtunisia.github.io/Copie-de-PQ.DIG.02_00-Escalade-de-l-Information/Copie%20de%20PQ.DIG.02_00%20Escalade%20de%20l'Information.pdf";
+
+      pdfjsLib.GlobalWorkerOptions.workerSrc =
+        "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.10.101/pdf.worker.min.js";
+
+      const viewer = document.getElementById("pdf-viewer");
+
+      pdfjsLib
+        .getDocument(pdfUrl)
+        .promise.then((pdf) => {
+          for (let pageNum = 1; pageNum <= pdf.numPages; pageNum++) {
+            pdf.getPage(pageNum).then((page) => {
+              const scale = 1.2;
+              const viewport = page.getViewport({ scale });
+              const canvas = document.createElement("canvas");
+              const context = canvas.getContext("2d");
+              canvas.width = viewport.width;
+              canvas.height = viewport.height;
+              viewer.appendChild(canvas);
+              page.render({ canvasContext: context, viewport: viewport });
+            });
+          }
+        })
+        .catch((err) => {
+          viewer.innerHTML = `<p style="color:red; text-align:center;">Impossible de charger le PDF: ${err.message}</p>`;
+        });
+    </script>
   </body>
 </html>
+
